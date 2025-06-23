@@ -45,6 +45,11 @@ class User extends Authenticatable
     {
         return $this->role ? $this->role->name : null;
     }
+
+    public function doctorProfile()
+    {
+        return $this->hasOne(DoctorProfile::class);
+    }
     protected $hidden = [
         'password',
         'remember_token',

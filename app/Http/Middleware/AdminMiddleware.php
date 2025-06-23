@@ -17,10 +17,10 @@ class AdminMiddleware
     {
         $user = $request->user();
 
-        if ($user || !in_array($user->roleName(), $roles)) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+        if ($user && in_array($user->roleName(), $roles)) {
+            return $next($request);
         }
 
-        return $next($request);
+        return response()->json(['error' => 'Unauthorized'], 403);
     }
 }

@@ -80,6 +80,10 @@ class Controller extends BaseController
 
     public function removePublicFile($file_path)
     {
-        @unlink(public_path($file_path));
+        $fullPath = public_path($file_path);
+
+        if (file_exists($fullPath)) {
+            unlink($fullPath);
+        }
     }
 }
