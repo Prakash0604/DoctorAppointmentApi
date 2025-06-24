@@ -33,8 +33,9 @@ class DoctorProfile extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function schedule(){
-        return $this->hasOne(Schedule::class);
+    public function schedules()
+    {
+        return $this->hasMany(Schedule::class);
     }
 
 
