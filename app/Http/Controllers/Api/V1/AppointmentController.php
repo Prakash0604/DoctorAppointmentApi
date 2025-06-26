@@ -9,6 +9,7 @@ use App\Models\Appointment;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Response;
 
 class AppointmentController extends Controller
 {
@@ -22,7 +23,7 @@ class AppointmentController extends Controller
             $currentUser = getCurrentUser();
 
             if (!$currentUser || !isset($currentUser->role_name)) {
-                return $this->sendError('Unauthorized or invalid user.', 401);
+                return $this->sendError('Unauthorized or invalid user.', Response::HTTP_FORBIDDEN);
             }
 
             $query = Appointment::query();
@@ -40,18 +41,18 @@ class AppointmentController extends Controller
                     break;
 
                 default:
-                    return $this->sendError('Unauthorized role.', 403);
+                    return $this->sendError('Unauthorized role.', Response::HTTP_FORBIDDEN);
             }
 
             $appointments = $query->latest()->paginate($perPage);
 
             if ($appointments->total() === 0) {
-                return $this->sendError('No appointments found.', 404);
+                return $this->sendError('No appointments found.', Response::HTTP_NOT_FOUND);
             }
 
             return $this->sendPaginatedResponse($appointments, AppointmentResource::class, 'Appointments fetched successfully.');
         } catch (\Throwable $e) {
-            return $this->sendError('Something went wrong! ' . $e->getMessage(), 500);
+            return $this->sendError('Something went wrong! ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -61,7 +62,7 @@ class AppointmentController extends Controller
             $perPage = (int) $request->get('per_page', 10);
             $currentUser = getCurrentUser();
             if (!$currentUser || !isset($currentUser->role_name)) {
-                return $this->sendError('Unauthorized or invalid user.', 401);
+                return $this->sendError('Unauthorized or invalid user.', Response::HTTP_FORBIDDEN);
             }
 
             $query = Appointment::query()->whereDate('appointment_date', now()->toDateString());
@@ -79,13 +80,13 @@ class AppointmentController extends Controller
                     break;
 
                 default:
-                    return $this->sendError('Unauthorized role.', 403);
+                    return $this->sendError('Unauthorized role.', Response::HTTP_FORBIDDEN);
             }
 
             $appointments = $query->latest()->paginate($perPage);
 
             if ($appointments->isEmpty()) {
-                return $this->sendError('No appointments found for today.', 404);
+                return $this->sendError('No appointments found for today.', Response::HTTP_NOT_FOUND);
             }
 
             return $this->sendPaginatedResponse(
@@ -94,7 +95,7 @@ class AppointmentController extends Controller
                 'Today\'s appointments fetched successfully.'
             );
         } catch (\Throwable $e) {
-            return $this->sendError('Something went wrong! ' . $e->getMessage(), 500);
+            return $this->sendError('Something went wrong! ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -105,7 +106,7 @@ class AppointmentController extends Controller
             $user = getCurrentUser();
 
             if (!$user || $user->role_name !== 'Doctor') {
-                return $this->sendError('Only doctors are allowed to update appointment status.', 403);
+                return $this->sendError('Only doctors are allowed to update appointment status.', Response::HTTP_FORBIDDEN);
             }
 
             $request->validate([
@@ -117,7 +118,7 @@ class AppointmentController extends Controller
                 ->first();
 
             if (!$appointment) {
-                return $this->sendError('Appointment not found.', 404);
+                return $this->sendError('Appointment not found.', Response::HTTP_NOT_FOUND);
             }
 
             $appointment->status = $request->status;
@@ -125,7 +126,7 @@ class AppointmentController extends Controller
 
             return $this->sendResponse(new AppointmentResource($appointment), 'Appointment status updated successfully.');
         } catch (\Throwable $e) {
-            return $this->sendError('Something went wrong! ' . $e->getMessage(), 500);
+            return $this->sendError('Something went wrong! ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -145,9 +146,9 @@ class AppointmentController extends Controller
 
             $appointment = Appointment::create($request->validated());
 
-            return $this->sendResponse(new AppointmentResource($appointment), 'Appointment has been booked successfully.', 201);
+            return $this->sendResponse(new AppointmentResource($appointment), 'Appointment has been booked successfully.', Response::HTTP_CREATED);
         } catch (Exception $e) {
-            return $this->sendError('Something went wrong! ' . $e->getMessage());
+            return $this->sendError('Something went wrong! ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -159,11 +160,11 @@ class AppointmentController extends Controller
         try {
             $appointment = Appointment::find($id);
             if (!$appointment) {
-                return $this->sendError('Appointment not found.', 404);
+                return $this->sendError('Appointment not found.', Response::HTTP_NOT_FOUND);
             }
             return $this->sendResponse(new AppointmentResource($appointment), 'Appointment details fetched.');
         } catch (Exception $e) {
-            return $this->sendError('Something went wrong : ' . $e->getMessage(), 500);
+            return $this->sendError('Something went wrong : ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -188,9 +189,9 @@ class AppointmentController extends Controller
 
             $app->update($request->validated());
 
-            return $this->sendResponse(new AppointmentResource($app), 'Appointment has been updated successfully.', 200);
+            return $this->sendResponse(new AppointmentResource($app), 'Appointment has been updated successfully.', Response::HTTP_OK);
         } catch (Exception $e) {
-            return $this->sendError('Something went wrong! ' . $e->getMessage());
+            return $this->sendError('Something went wrong! ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -201,14 +202,18 @@ class AppointmentController extends Controller
     public function destroy(string $id)
     {
         try {
-            $appointment = Appointment::findOrFail($id);
+            $appointment = Appointment::find($id);
+
+            if(!$appointment){
+                return $this->sendError('Appointment not found', Response::HTTP_NOT_FOUND);
+            }
 
             $appointment->delete();
-            return $this->sendResponse([], 'Appointment deleted successfully.');
+            return $this->sendResponse([], 'Appointment deleted successfully.', Response::HTTP_OK);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return $this->sendError('Appointment not found.', 404);
+            return $this->sendError('Appointment not found.', Response::HTTP_NOT_FOUND);
         } catch (Exception $e) {
-            return $this->sendError('Something went wrong! ' . $e->getMessage(), 500);
+            return $this->sendError('Something went wrong! ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Response;
 
 class DoctorProfileController extends Controller
 {
@@ -23,9 +24,9 @@ class DoctorProfileController extends Controller
         })->where('status', 'active')->latest()->paginate($perPage);
 
         if ($doctors->isEmpty()) {
-            return $this->sendError('Doctor not found', 404);
+            return $this->sendError('Doctor not found', Response::HTTP_NOT_FOUND);
         }
-        return $this->sendPaginatedResponse($doctors, UserResource::class, 'Doctor fetched successfully.');
+        return $this->sendPaginatedResponse($doctors, UserResource::class, 'Doctor fetched successfully.', Response::HTTP_OK);
     }
 
     public function getDoctor($id)
@@ -35,11 +36,11 @@ class DoctorProfileController extends Controller
                 $row->where('name', 'Doctor');
             })->where('status', 'active')->find($id);
             if (!$doctors) {
-                return $this->sendError('Doctor Profile not found.', 404);
+                return $this->sendError('Doctor Profile not found.', Response::HTTP_NOT_FOUND);
             }
-            return $this->sendResponse(new UserResource($doctors), 'Doctor Profile details fetched.');
+            return $this->sendResponse(new UserResource($doctors), 'Doctor Profile details fetched.', Response::HTTP_OK);
         } catch (\Exception $e) {
-            return $this->sendError('Internal Server Error : ' . $e->getMessage(), 500);
+            return $this->sendError('Internal Server Error : ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
     public function storeOrUpdateSpecialization(DoctorProfileRequest $request)
@@ -68,10 +69,10 @@ class DoctorProfileController extends Controller
             }
 
             DB::commit();
-            return $this->sendResponse(new DoctorProfileResource($profile), 'Doctor Profile saved successfully.', 200);
+            return $this->sendResponse(new DoctorProfileResource($profile), 'Doctor Profile saved successfully.', Response::HTTP_OK);
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('Failed to save profile: ' . $e->getMessage(), 500);
+            return $this->sendError('Failed to save profile: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -83,11 +84,11 @@ class DoctorProfileController extends Controller
         try {
             $profile = DoctorProfile::find($id);
             if (!$profile) {
-                return $this->sendError('Doctor Profile not found.', 404);
+                return $this->sendError('Doctor Profile not found.', Response::HTTP_NOT_FOUND);
             }
-            return $this->sendResponse(new DoctorProfileResource($profile), 'Doctor Profile details fetched.');
+            return $this->sendResponse(new DoctorProfileResource($profile), 'Doctor Profile details fetched.', Response::HTTP_OK);
         } catch (\Exception $e) {
-            return $this->sendError('Internal Server Error : ' . $e->getMessage(), 500);
+            return $this->sendError('Internal Server Error : ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -98,11 +99,11 @@ class DoctorProfileController extends Controller
             $auth = Auth::id();
             $profile = DoctorProfile::with('schedule')->where('user_id', $auth)->first();
             if (!$profile) {
-                return $this->sendError('Doctor Profile not found.', 404);
+                return $this->sendError('Doctor Profile not found.', Response::HTTP_NOT_FOUND);
             }
-            return $this->sendResponse(new DoctorProfileResource($profile), 'Doctor Profile details fetched.');
+            return $this->sendResponse(new DoctorProfileResource($profile), 'Doctor Profile details fetched.', Response::HTTP_OK);
         } catch (\Exception $e) {
-            return $this->sendError('Internal Server Error: ' . $e->getMessage(), 500);
+            return $this->sendError('Internal Server Error: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

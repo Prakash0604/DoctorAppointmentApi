@@ -3,6 +3,9 @@
 use App\Http\Controllers\Api\V1\AppointmentController;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Http\Controllers\Api\V1\DoctorProfile\DoctorProfileController;
+use App\Http\Controllers\Api\V1\PrescriptionController;
+use App\Http\Controllers\Api\V1\ReviewController;
+use App\Models\Prescription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,13 +24,16 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
+Route::get('ping', fn() => response()->json(['message' => 'API is live']));
+
+
 Route::prefix('v1')->group(function () {
     Route::post('auth/register', [AuthController::class, 'register'])->name('auth.register');
     Route::post('auth/login', [AuthController::class, 'login'])->name('auth.login');
 
     // For Admin
     Route::middleware('auth:api')->group(function () {
-        
+
         Route::get('profile', [AuthController::class, 'profile']);
         Route::put('profile/update', [AuthController::class, 'profileUpdate']);
         Route::get('specializations', [DoctorProfileController::class, 'specializations']);
@@ -45,12 +51,19 @@ Route::prefix('v1')->group(function () {
             Route::get('appointments', [AppointmentController::class, 'index']);
             Route::get('todays-appointment', [AppointmentController::class, 'todaysAppointment']);
             Route::put('appointments/toggle-status/{id}', [AppointmentController::class, 'toggleStatus']);
+            Route::apiResource('prescriptions', PrescriptionController::class);
+            Route::get('reviews/{id}', [ReviewController::class, 'show']);
+            Route::get('reviews', [ReviewController::class, 'index']);
         });
 
         // For Patient
-        Route::prefix('patient')->group(function () {
+        Route::middleware('role:Patient')->prefix('patient')->group(function () {
             Route::apiResource('appointments', AppointmentController::class);
             Route::get('todays-appointment', [AppointmentController::class, 'todaysAppointment']);
+            Route::get('prescriptions', [PrescriptionController::class, 'index']);
+            Route::get('prescriptions/{id}', [PrescriptionController::class, 'show']);
+            Route::post('reviews', [ReviewController::class, 'store']);
+            Route::get('reviews', [ReviewController::class, 'index']);
         });
 
         // Logout

@@ -8,6 +8,7 @@ use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Response;
 
 class AuthController extends Controller
 {
@@ -15,9 +16,9 @@ class AuthController extends Controller
     {
         $user = User::create($request->validated());
         if ($user) {
-            return $this->sendResponse(['user' => $user], 'User registered successfully', 201);
+            return $this->sendResponse(['user' => $user], 'User registered successfully', Response::HTTP_CREATED);
         } else {
-            return $this->sendError('Internal Server Error', 500);
+            return $this->sendError('Something went wrong', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -30,18 +31,18 @@ class AuthController extends Controller
             $data['token'] = $user->createToken('auth-token')->accessToken;
             $data['name'] = $user->name;
             $data['role'] = $user->roleName();
-            return $this->sendResponse($data, 'Login Successfully', 200);
+            return $this->sendResponse($data, 'Login Successfully', Response::HTTP_OK);
         }
-        return $this->sendError('Invalid Login Crediantials', 401);
+        return $this->sendError('Invalid Login Crediantials', Response::HTTP_UNAUTHORIZED);
     }
 
     public function profile()
     {
         $user =  Auth::user();
         if ($user) {
-            return $this->sendResponse($user, 'Profile Information', 200);
+            return $this->sendResponse($user, 'Profile Information', Response::HTTP_OK);
         }
-        return $this->sendError('Unauthenticated', 401);
+        return $this->sendError('Unauthenticated', Response::HTTP_UNAUTHORIZED);
     }
 
 
@@ -50,7 +51,7 @@ class AuthController extends Controller
         $user = Auth::user();
 
         if (!$user) {
-            return $this->sendError('User not authenticated', 401);
+            return $this->sendError('User not authenticated', Response::HTTP_UNAUTHORIZED);
         }
 
         $data = $request->validated();
@@ -85,10 +86,10 @@ class AuthController extends Controller
         }
 
         if ($user->update($data)) {
-            return $this->sendResponse($user, 'Profile Updated Successfully', 200);
+            return $this->sendResponse($user, 'Profile Updated Successfully', Response::HTTP_OK);
         }
 
-        return $this->sendError('Something went wrong', 500);
+        return $this->sendError('Something went wrong', Response::HTTP_UNAUTHORIZED);
     }
 
 
@@ -99,9 +100,9 @@ class AuthController extends Controller
         $token = $request->user()->token();
         if ($token) {
             $token->revoke();
-            return $this->sendResponse('', 'Logout Successfully', 200);
+            return $this->sendResponse('', 'Logout Successfully', Response::HTTP_OK);
         } else {
-            return $this->sendError('Something went wrong', 404);
+            return $this->sendError('Something went wrong', Response::HTTP_UNAUTHORIZED);
         }
     }
 }
