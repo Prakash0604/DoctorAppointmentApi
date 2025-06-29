@@ -28,7 +28,7 @@ class PrescriptionRequest extends FormRequest
             'notes' => 'nullable|string',
         ];
 
-        if ($this->has('medicine_name')) {
+        if ($this->has('item_ids')) {
             $rule['medicine_name'] = 'required|array';
             $rule['medicine_name.*'] = 'required|string|min:2|max:100';
 
@@ -43,6 +43,9 @@ class PrescriptionRequest extends FormRequest
 
             $rule['instructions'] = 'nullable|array';
             $rule['instructions.*'] = 'nullable|string|min:3|max:100';
+
+            $rule['item_ids'] = 'sometimes|array';
+            $rule['item_ids.*'] = 'sometimes|integer|exists:prescription_items,id';
         }
 
         return $rule;

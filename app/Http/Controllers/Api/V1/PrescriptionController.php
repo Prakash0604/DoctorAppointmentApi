@@ -116,25 +116,30 @@ class PrescriptionController extends Controller
     public function update(PrescriptionRequest $request, string $id)
     {
         DB::beginTransaction();
-
         try {
             $prescription = Prescription::findOrFail($id);
             $prescription->update($request->validated());
 
-            if ($request->has('medicine_name') && is_array($request->medicine_name)) {
-                foreach ($request->medicine_name as $index => $name) {
-                    PrescriptionItem::updateOrCreate(
-                        [
-                            'prescription_id' => $prescription->id,
-                            'medicine_name'   => $name,
-                        ],
-                        [
-                            'dosage'       => $request->dosage[$index] ?? null,
-                            'frequency'    => $request->frequency[$index] ?? null,
-                            'duration'     => $request->duration[$index] ?? null,
-                            'instructions' => $request->instructions[$index] ?? null,
-                        ]
-                    );
+            $itemIds = $request->item_ids ?? [];
+            $existingIds = $prescription->prescriptionItem()->pluck('id')->toArray();
+            $toDelete = array_diff($existingIds, $itemIds);
+            PrescriptionItem::destroy($toDelete);
+
+            foreach ($request->medicine_name as $index => $name) {
+                $itemId = $itemIds[$index] ?? null;
+
+                $data = [
+                    'medicine_name' => $name,
+                    'dosage'        => $request->dosage[$index] ?? null,
+                    'frequency'     => $request->frequency[$index] ?? null,
+                    'duration'      => $request->duration[$index] ?? null,
+                    'instructions'  => $request->instructions[$index] ?? null,
+                ];
+
+                if ($itemId) {
+                    $prescription->prescriptionItem()->where('id', $itemId)->update($data);
+                } else {
+                    $prescription->prescriptionItem()->create($data);
                 }
             }
 
