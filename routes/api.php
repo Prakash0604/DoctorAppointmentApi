@@ -50,7 +50,7 @@ Route::prefix('v1')->group(function () {
             Route::get('get-detail', [DoctorProfileController::class, 'showOwnProfile']);
             Route::get('appointments', [AppointmentController::class, 'index']);
             Route::get('todays-appointment', [AppointmentController::class, 'todaysAppointment']);
-            Route::put('appointments/toggle-status/{id}', [AppointmentController::class, 'toggleStatus']);
+            Route::put('appointments/toggle-status/{id}', [AppointmentController::class, 'toggleAppointmentStatus']);
             Route::apiResource('prescriptions', PrescriptionController::class);
             Route::get('reviews/{id}', [ReviewController::class, 'show']);
             Route::get('reviews', [ReviewController::class, 'index']);

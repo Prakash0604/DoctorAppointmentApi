@@ -174,7 +174,7 @@ class AppointmentController extends Controller
     public function update(AppointmentRequest $request, string $id)
     {
         try {
-            $app = Appointment::findOrFail($id);
+            $app = Appointment::find($id);
 
             $appointmentExists = Appointment::where('appointment_date', $request->appointment_date)
                 ->where('doctor_id', $request->doctor_id)

@@ -32,7 +32,7 @@ class DoctorProfileController extends Controller
     public function getDoctor($id)
     {
         try {
-            $doctors = User::with('doctorProfile.schedule', 'role')->whereHas('role', function ($row) {
+            $doctors = User::with('doctorProfile.schedules', 'role')->whereHas('role', function ($row) {
                 $row->where('name', 'Doctor');
             })->where('status', 'active')->find($id);
             if (!$doctors) {
@@ -63,7 +63,7 @@ class DoctorProfileController extends Controller
                         'day_of_week' => $request->day_of_week,
                         'start_time' => $request->start_time,
                         'end_time' => $request->end_time,
-                        'slot_duration' => $request->slot_duration
+                        'slot_duration' => $request->slot_duration,
                     ]
                 );
             }
@@ -97,7 +97,7 @@ class DoctorProfileController extends Controller
     {
         try {
             $auth = Auth::id();
-            $profile = DoctorProfile::with('schedule')->where('user_id', $auth)->first();
+            $profile = DoctorProfile::with('schedules')->where('user_id', $auth)->first();
             if (!$profile) {
                 return $this->sendError('Doctor Profile not found.', Response::HTTP_NOT_FOUND);
             }
