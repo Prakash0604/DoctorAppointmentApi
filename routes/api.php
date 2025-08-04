@@ -36,17 +36,15 @@ Route::prefix('v1')->group(function () {
 
         Route::get('profile', [AuthController::class, 'profile']);
         Route::put('profile/update', [AuthController::class, 'profileUpdate']);
-        Route::get('specializations', [DoctorProfileController::class, 'specializations']);
-        Route::get('specializations/{id}', [DoctorProfileController::class, 'show']);
-        Route::get('doctors', [DoctorProfileController::class, 'index']);
-        Route::get('doctors/{id}', [DoctorProfileController::class, 'getDoctor']);
+        // Route::get('specializations', [DoctorProfileController::class, 'specializations']);
+        // Route::get('specializations/{id}', [DoctorProfileController::class, 'show']);
 
         // For Admin
         Route::middleware('role:Admin')->prefix('admin')->group(function () {});
 
         // For Doctor
         Route::middleware('role:Doctor')->prefix('doctor')->group(function () {
-            Route::post('specializations', [DoctorProfileController::class, 'storeOrUpdateSpecialization']);
+            Route::post('doctor-specializations', [DoctorProfileController::class, 'storeOrUpdateSpecialization']);
             Route::get('get-detail', [DoctorProfileController::class, 'showOwnProfile']);
             Route::get('appointments', [AppointmentController::class, 'index']);
             Route::get('todays-appointment', [AppointmentController::class, 'todaysAppointment']);
@@ -58,6 +56,8 @@ Route::prefix('v1')->group(function () {
 
         // For Patient
         Route::middleware('role:Patient')->prefix('patient')->group(function () {
+            Route::get('doctor-specialists', [DoctorProfileController::class, 'index']);
+            Route::get('doctor-specialists/{id}', [DoctorProfileController::class, 'getDoctor']);
             Route::apiResource('appointments', AppointmentController::class);
             Route::get('todays-appointment', [AppointmentController::class, 'todaysAppointment']);
             Route::get('prescriptions', [PrescriptionController::class, 'index']);

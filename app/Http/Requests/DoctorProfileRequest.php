@@ -22,8 +22,7 @@ class DoctorProfileRequest extends FormRequest
     public function rules(): array
     {
         $rule = [
-            'specialization_id' => 'required|array',
-            'specialization_id.*' => 'required|exists:specializations,id',
+            'specialization_id' => 'required|exists:specializations,id',
 
             'experience' => 'required|string',
             'qualification' => 'required|string',

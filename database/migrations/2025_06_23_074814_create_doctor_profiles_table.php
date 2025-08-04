@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('doctor_profiles', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onUpdate('cascade');
-            $table->json('specialization_id');
+            $table->foreignId('specialization_id')->constrained('specializations')->cascadeOnUpdate();
             $table->string('experience');
             $table->string('qualification');
             $table->string('bio')->nullable();

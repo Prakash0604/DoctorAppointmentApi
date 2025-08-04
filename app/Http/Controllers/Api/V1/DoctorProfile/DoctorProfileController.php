@@ -14,8 +14,24 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Response;
 
+/**
+ * @OA\Tag(
+ *     name="Patient",
+ *     description="API Endpoints for managing Doctor Profile"
+ * )
+ */
 class DoctorProfileController extends Controller
 {
+
+      /**
+     * @OA\Get(
+     *     tags={"Patient"},
+     *     path="/api/v1/patient/doctor-specialists",
+     *     summary="Get Doctor List to patient",
+     *     @OA\Response(response="200", description="Success"),
+     *     security={{"bearerAuth":{}}}
+     * )
+     */
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
@@ -28,6 +44,16 @@ class DoctorProfileController extends Controller
         }
         return $this->sendPaginatedResponse($doctors, UserResource::class, 'Doctor fetched successfully.', Response::HTTP_OK);
     }
+
+       /**
+     * @OA\Get(
+     *     tags={"Patient"},
+     *     path="/api/v1/patient/doctor-specialists/{id}",
+     *     summary="Get Doctor List to patient",
+     *     @OA\Response(response="200", description="Success"),
+     *     security={{"bearerAuth":{}}}
+     * )
+     */
 
     public function getDoctor($id)
     {

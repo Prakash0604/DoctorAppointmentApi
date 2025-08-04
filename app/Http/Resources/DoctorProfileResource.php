@@ -23,7 +23,7 @@ class DoctorProfileResource extends JsonResource
                 'name' => $this->user->name,
                 'email' => $this->user->email,
             ] : null,
-            'specializations' => $this->specializationNames(),
+            'specializations' => $this->specialization->name,
 
             'experience' => $this->experience,
             'qualification' => $this->qualification,

@@ -22,9 +22,9 @@ class DoctorProfile extends Model
         });
     }
 
-    public function specializationNames()
+    public function specialization()
     {
-        return Specialization::whereIn('id', $this->specialization_id)->pluck('name');
+        return $this->belongsTo(Specialization::class);
     }
 
 
@@ -37,9 +37,4 @@ class DoctorProfile extends Model
     {
         return $this->hasMany(Schedule::class);
     }
-
-
-    protected $casts = [
-        'specialization_id' => 'array'
-    ];
 }
