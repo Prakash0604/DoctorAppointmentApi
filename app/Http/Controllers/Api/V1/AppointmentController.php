@@ -11,11 +11,29 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Response;
 
+
+    
+      /**
+     * @OA\Get(
+     *     tags={"Appointment"},
+     *     path="/api/v1/doctor/appointments",
+     *     summary="Get Doctor appointment list of own for doctor",
+     *     @OA\Response(response="200", description="Success"),
+     *     security={{"bearerAuth":{}}}
+     * )
+     */
 class AppointmentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+      /**
+     * @OA\Get(
+     *     tags={"Appointment"},
+     *     path="/api/v1/patient/appointments",
+     *     summary="Get Doctor appointment list of own for patient",
+     *     @OA\Response(response="200", description="Success"),
+     *     security={{"bearerAuth":{}}}
+     * )
+     */ 
+    
     public function index(Request $request)
     {
         try {
@@ -55,6 +73,28 @@ class AppointmentController extends Controller
             return $this->sendError('Something went wrong! ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+  /**
+     * @OA\Get(
+     *     tags={"Appointment"},
+     *     path="/api/v1/patient/todays-appointment",
+     *     summary="Get Todays list of Doctor appointment for patient",
+     *     @OA\Response(response="200", description="Success"),
+     *     security={{"bearerAuth":{}}}
+     * )
+     */ 
+
+  public function test(){}
+
+    /**
+     * @OA\Get(
+     *     tags={"Appointment"},
+     *     path="/api/v1/doctor/todays-appointment",
+     *     summary="Get Todays list of Doctor appointment for Doctors",
+     *     @OA\Response(response="200", description="Success"),
+     *     security={{"bearerAuth":{}}}
+     * )
+     */ 
 
     public function todaysAppointment(Request $request)
     {
@@ -99,6 +139,21 @@ class AppointmentController extends Controller
         }
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/doctor/appointments/toggle-status/{id}",
+     *     tags={"Doctor"},
+     *     summary="Change Appointment Status",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="provide the appointment id",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="201", description="Appointment status  changed successfully"),
+     * )
+     */
 
     public function toggleAppointmentStatus(Request $request, $id)
     {
@@ -131,6 +186,35 @@ class AppointmentController extends Controller
     }
 
 
+      /**
+     * @OA\Post(
+     *     path="/api/v1/patient/appointments",
+     *     summary="Store Appointment",
+     *     tags={"Patient"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"doctor_id","appointment_date","start_time","end_time","notes"},
+     *             @OA\Property(property="doctor_id", type="string", example="2"),
+     *             @OA\Property(property="appointment_date", type="string", example="2025-05-04"),
+     *             @OA\Property(property="start_time", type="time", format="time", example="09:00"),
+     *             @OA\Property(property="end_time", type="time", example="15:00"),
+     *             @OA\Property(property="notes", type="string", example="hello test notes"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Update Specification",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Appointment sheduled successfully"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
+     */
+
     public function store(AppointmentRequest $request)
     {
         try {
@@ -153,7 +237,19 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * @OA\Get(
+     *     path="/api/patient/appointments",
+     *     tags={"Doctor"},
+     *     summary="Get Appointment Detail",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="Get Appointment Detail",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="200", description="Appointment Detail Fetched successfully"),
+     * )
      */
     public function show(string $id)
     {
@@ -167,9 +263,40 @@ class AppointmentController extends Controller
             return $this->sendError('Something went wrong : ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-
-    /**
-     * Update the specified resource in storage.
+   /**
+     * @OA\Put(
+     *     path="/api/v1/patient/appointments/{id}",
+     *     summary="Update Appointment",
+     *     tags={"Patient"},
+     *     security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="provide the appointment id",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"doctor_id","appointment_date","start_time","end_time","notes"},
+     *             @OA\Property(property="doctor_id", type="string", example="2"),
+     *             @OA\Property(property="appointment_date", type="string", example="2025-05-05"),
+     *             @OA\Property(property="start_time", type="time", format="time", example="09:00"),
+     *             @OA\Property(property="end_time", type="time", example="15:00"),
+     *             @OA\Property(property="notes", type="string", example="hello test notes updated"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Update Appointment",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Appointment Updated successfully"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function update(AppointmentRequest $request, string $id)
     {
@@ -196,8 +323,21 @@ class AppointmentController extends Controller
     }
 
 
+   
     /**
-     * Remove the specified resource from storage.
+     * @OA\Delete(
+     *     path="/api/doctor/patient/appointments/{id}",
+     *     tags={"Patient"},
+     *     summary="Delete Appointment",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="provide the appointment id",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(response="201", description="Appointment Deleted successfully"),
+     * )
      */
     public function destroy(string $id)
     {
