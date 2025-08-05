@@ -146,7 +146,7 @@ class AppointmentController extends Controller
      *     summary="Change Appointment Status",
      *     @OA\Parameter(
      *         name="id",
-     *         in="query",
+     *         in="path",
      *         description="provide the appointment id",
      *         required=true,
      *         @OA\Schema(type="string")
@@ -271,7 +271,7 @@ class AppointmentController extends Controller
      *     security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
-     *         in="query",
+     *         in="path",
      *         description="provide the appointment id",
      *         required=true,
      *         @OA\Schema(type="string")

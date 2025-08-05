@@ -149,7 +149,7 @@ class PrescriptionController extends Controller
      *     path="/api/v1/patient/prescriptions/{id}",
      *     @OA\Parameter(
      *         name="id",
-     *         in="query",
+     *         in="path",
      *         description="Get Prescription Detail",
      *         required=true,
      *         @OA\Schema(type="string")
@@ -168,7 +168,7 @@ class PrescriptionController extends Controller
      *     path="/api/v1/doctor/prescriptions/{id}",
      *     @OA\Parameter(
      *         name="id",
-     *         in="query",
+     *         in="path",
      *         description="Get Prescription Detail",
      *         required=true,
      *         @OA\Schema(type="string")
@@ -191,9 +191,46 @@ class PrescriptionController extends Controller
             return $this->sendError('Something went wrong : ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-
     /**
-     * Update the specified resource in storage.
+     * @OA\Put(
+     *     path="/api/v1/patient/prescriptions/{id}",
+     *     summary="Store prescription",
+     *     tags={"Doctor"},
+     *       @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Get Prescription Detail",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"appointment_id","patient_id","notes","item_ids","medicine_name","dosage","frequency","duration","instructions","item_ids"},
+     *             @OA\Property(property="appointment_id", type="string", example="3"),
+     *             @OA\Property(property="patient_id", type="string", example="3"),
+     *             @OA\Property(property="notes", type="string", example="testing notes update"),
+     *             @OA\Property(property="item_ids", type="object",
+     *             @OA\Property(property="medicine_name", type="string", example=" Amlodipine"),
+     *             @OA\Property(property="dosage", type="string", example="3"),
+     *             @OA\Property(property="frequency", type="string", example="3"),
+     *             @OA\Property(property="duration", type="string", example="3"),
+     *             @OA\Property(property="instructions", type="string", example="Please take a dose  at least 3 times a day and duration is after meal"),
+     *             @OA\Property(property="item_ids", type="string", example="2"),        
+     *               ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Update prescription",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Prescription updated successfully"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function update(PrescriptionRequest $request, string $id)
     {
@@ -239,9 +276,22 @@ class PrescriptionController extends Controller
     }
 
 
-    /**
-     * Remove the specified resource from storage.
-     */
+     /**
+     * @OA\Delete(
+     *     tags={"Doctor"},
+     *     path="/api/v1/doctor/prescriptions/{id}",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Get Prescription id",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     summary="Delete Doctor Prescription",
+     *     @OA\Response(response="200", description="Success"),
+     *     security={{"bearerAuth":{}}}
+     * )
+     */ 
     public function destroy(string $id)
     {
         DB::beginTransaction();
