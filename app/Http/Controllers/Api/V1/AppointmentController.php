@@ -205,7 +205,7 @@ class AppointmentController extends Controller
      *     ),
      *     @OA\Response(
      *         response=201,
-     *         description="Update Specification",
+     *         description="Store Appointment",
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Appointment sheduled successfully"),

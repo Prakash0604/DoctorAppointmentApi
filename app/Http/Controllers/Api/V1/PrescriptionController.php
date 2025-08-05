@@ -13,11 +13,28 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Response;
 
+
+      /**
+     * @OA\Get(
+     *     tags={"Doctor"},
+     *     path="/api/v1/doctor/prescriptions",
+     *     summary="Get Doctor Prescription list of own for doctor",
+     *     @OA\Response(response="200", description="Success"),
+     *     security={{"bearerAuth":{}}}
+     * )
+     */
 class PrescriptionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+      /**
+     * @OA\Get(
+     *     tags={"Patient"},
+     *     path="/api/v1/patient/prescriptions",
+     *     summary="Get Doctor prescription list of own for patient",
+     *     @OA\Response(response="200", description="Success"),
+     *     security={{"bearerAuth":{}}}
+     * )
+     */ 
+    
     public function index(Request $request)
     {
         try {
@@ -58,8 +75,40 @@ class PrescriptionController extends Controller
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
+   
+      /**
+     * @OA\Post(
+     *     path="/api/v1/patient/prescriptions",
+     *     summary="Store prescription",
+     *     tags={"Doctor"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"appointment_id","patient_id","notes","item_ids","medicine_name","dosage","frequency","duration","instructions","item_ids"},
+     *             @OA\Property(property="appointment_id", type="string", example="2"),
+     *             @OA\Property(property="patient_id", type="string", example="2"),
+     *             @OA\Property(property="notes", type="string", example="testing notes"),
+     *             @OA\Property(property="item_ids", type="object",
+     *             @OA\Property(property="medicine_name", type="string", example=" Amoxicillin"),
+     *             @OA\Property(property="dosage", type="string", example="1"),
+     *             @OA\Property(property="frequency", type="string", example="2"),
+     *             @OA\Property(property="duration", type="string", example="2"),
+     *             @OA\Property(property="instructions", type="string", example="2"),
+     *             @OA\Property(property="item_ids", type="string", example="2"),        
+     *               ),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Store prescription",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Prescription created successfully"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function store(PrescriptionRequest $request)
     {
@@ -95,8 +144,41 @@ class PrescriptionController extends Controller
 
 
     /**
-     * Display the specified resource.
-     */
+     * @OA\Get(
+     *     tags={"Patient"},
+     *     path="/api/v1/patient/prescriptions/{id}",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="Get Prescription Detail",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     summary="Get Doctor prescription detial",
+     *     @OA\Response(response="200", description="Success"),
+     *     security={{"bearerAuth":{}}}
+     * )
+     */ 
+
+    public function test(){}
+
+      /**
+     * @OA\Get(
+     *     tags={"Doctor"},
+     *     path="/api/v1/doctor/prescriptions/{id}",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="query",
+     *         description="Get Prescription Detail",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     summary="Get Doctor prescription detial",
+     *     @OA\Response(response="200", description="Success"),
+     *     security={{"bearerAuth":{}}}
+     * )
+     */ 
+
     public function show(string $id)
     {
         try {
